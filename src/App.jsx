@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const workouts = [
   {
@@ -85,14 +85,55 @@ const tips = [
 const categories = ["All", "HIIT", "Strength", "Mobility"];
 const levelColors = { Beginner: "#34D399", Intermediate: "#FBBF24", Advanced: "#F87171" };
 
+const themes = {
+  dark: {
+    "--bg":          "#0F1117",
+    "--bg-card":     "#16181F",
+    "--bg-nav":      "rgba(15,17,23,0.85)",
+    "--border":      "#2A2D38",
+    "--border-hover":"#3A3D48",
+    "--border-div":  "#1E2028",
+    "--text":        "#F0EDE8",
+    "--text-muted":  "#9CA3AF",
+    "--text-dim":    "#6B7280",
+    "--text-meta":   "#D1D5DB",
+    "--filter-text": "#9CA3AF",
+    "--footer-copy": "#4B5563",
+  },
+  light: {
+    "--bg":          "#F5F5F0",
+    "--bg-card":     "#FFFFFF",
+    "--bg-nav":      "rgba(245,245,240,0.90)",
+    "--border":      "#E0DED8",
+    "--border-hover":"#C8C6C0",
+    "--border-div":  "#E8E6E0",
+    "--text":        "#0F1117",
+    "--text-muted":  "#5A5A6A",
+    "--text-dim":    "#7A7A8A",
+    "--text-meta":   "#2A2A3A",
+    "--filter-text": "#5A5A6A",
+    "--footer-copy": "#9CA3AF",
+  },
+};
+
 export default function App() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [expandedId, setExpandedId] = useState(null);
+  const [expandedId, setExpandedId]     = useState(null);
+  const [isDark, setIsDark]             = useState(true);
 
+  const theme = isDark ? themes.dark : themes.light;
   const filtered = activeFilter === "All" ? workouts : workouts.filter((w) => w.category === activeFilter);
 
+  // Apply CSS vars to :root so every element can use them
+  useEffect(() => {
+    const root = document.documentElement;
+    Object.entries(theme).forEach(([k, v]) => root.style.setProperty(k, v));
+    document.body.style.background = theme["--bg"];
+    document.body.style.transition = "background 0.3s";
+  }, [isDark]);
+
   return (
-    <div style={{ background: "#0F1117", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "#F0EDE8" }}>
+    <div style={{ background: "var(--bg)", minHeight: "100vh", fontFamily: "'Inter', sans-serif", color: "var(--text)", transition: "background 0.3s, color 0.3s" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap');
 
@@ -111,8 +152,8 @@ export default function App() {
 
         .filter-btn {
           background: transparent;
-          border: 1px solid #2A2D38;
-          color: #9CA3AF;
+          border: 1px solid var(--border);
+          color: var(--filter-text);
           font-family: 'Space Grotesk', sans-serif;
           font-size: 0.8rem;
           font-weight: 600;
@@ -127,16 +168,16 @@ export default function App() {
         .filter-btn.active { background: #C8F135; border-color: #C8F135; color: #0F1117; }
 
         .card {
-          background: #16181F;
-          border: 1px solid #2A2D38;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           border-radius: 16px;
           padding: 1.75rem;
           cursor: pointer;
-          transition: border-color 0.2s, transform 0.2s;
+          transition: border-color 0.2s, transform 0.2s, background 0.3s;
           position: relative;
           overflow: hidden;
         }
-        .card:hover { border-color: #3A3D48; transform: translateY(-2px); }
+        .card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
         .card.open { border-color: var(--accent); }
 
         .duration-badge {
@@ -174,11 +215,12 @@ export default function App() {
           font-weight: 700;
           letter-spacing: -0.02em;
           margin-bottom: 0.5rem;
+          color: var(--text);
         }
 
         .card-desc {
           font-size: 0.875rem;
-          color: #9CA3AF;
+          color: var(--text-muted);
           line-height: 1.6;
           margin-bottom: 1rem;
         }
@@ -193,18 +235,18 @@ export default function App() {
           font-family: 'Space Grotesk', sans-serif;
           font-size: 0.75rem;
           font-weight: 500;
-          color: #6B7280;
+          color: var(--text-dim);
           display: flex;
           align-items: center;
           gap: 0.3rem;
         }
 
-        .meta-item span { color: #D1D5DB; }
+        .meta-item span { color: var(--text-meta); }
 
         .exercise-list {
           margin-top: 1.25rem;
           padding-top: 1.25rem;
-          border-top: 1px solid #2A2D38;
+          border-top: 1px solid var(--border);
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
@@ -213,7 +255,7 @@ export default function App() {
 
         .exercise-item {
           font-size: 0.82rem;
-          color: #D1D5DB;
+          color: var(--text-meta);
           display: flex;
           align-items: center;
           gap: 0.6rem;
@@ -229,14 +271,15 @@ export default function App() {
 
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(4px); }
-          to { opacity: 1; transform: translateY(0); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .tip-card {
-          background: #16181F;
-          border: 1px solid #2A2D38;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           border-radius: 12px;
           padding: 1.5rem;
+          transition: background 0.3s, border-color 0.3s;
         }
 
         .tip-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
@@ -246,11 +289,12 @@ export default function App() {
           font-size: 1rem;
           font-weight: 700;
           margin-bottom: 0.4rem;
+          color: var(--text);
         }
 
         .tip-body {
           font-size: 0.82rem;
-          color: #9CA3AF;
+          color: var(--text-muted);
           line-height: 1.65;
         }
 
@@ -258,14 +302,15 @@ export default function App() {
           position: sticky;
           top: 0;
           z-index: 100;
-          background: rgba(15,17,23,0.85);
+          background: var(--bg-nav);
           backdrop-filter: blur(12px);
-          border-bottom: 1px solid #1E2028;
+          border-bottom: 1px solid var(--border-div);
           padding: 0 2rem;
           height: 60px;
           display: flex;
           align-items: center;
           justify-content: space-between;
+          transition: background 0.3s, border-color 0.3s;
         }
 
         .nav-logo {
@@ -273,7 +318,60 @@ export default function App() {
           font-weight: 800;
           font-size: 1.1rem;
           letter-spacing: -0.02em;
-          color: #F0EDE8;
+          color: var(--text);
+        }
+
+        .nav-right {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        /* Theme toggle pill */
+        .theme-toggle {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          padding: 0.3rem 0.75rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .theme-toggle:hover { border-color: #C8F135; }
+
+        .toggle-track {
+          width: 32px;
+          height: 18px;
+          border-radius: 999px;
+          background: var(--border);
+          position: relative;
+          transition: background 0.25s;
+          flex-shrink: 0;
+        }
+        .toggle-track.on { background: #C8F135; }
+
+        .toggle-thumb {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #0F1117;
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          transition: transform 0.25s;
+        }
+        .toggle-track.on .toggle-thumb { transform: translateX(14px); }
+
+        .toggle-label {
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 0.72rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--text-muted);
+          user-select: none;
         }
 
         .nav-cta {
@@ -308,6 +406,7 @@ export default function App() {
           font-weight: 800;
           letter-spacing: -0.03em;
           line-height: 1.1;
+          color: var(--text);
         }
 
         .grid-3 {
@@ -370,23 +469,22 @@ export default function App() {
         .cta-btn-dark:hover { opacity: 0.85; }
 
         footer {
-          border-top: 1px solid #1E2028;
+          border-top: 1px solid var(--border-div);
           padding: 2rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 1rem;
           flex-wrap: wrap;
+          transition: border-color 0.3s;
         }
 
         .footer-copy {
           font-size: 0.78rem;
-          color: #4B5563;
+          color: var(--footer-copy);
         }
 
-        .stat-block {
-          text-align: center;
-        }
+        .stat-block { text-align: center; }
 
         .stat-num {
           font-family: 'Space Grotesk', sans-serif;
@@ -399,7 +497,7 @@ export default function App() {
 
         .stat-label {
           font-size: 0.8rem;
-          color: #6B7280;
+          color: var(--text-dim);
           margin-top: 0.25rem;
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 500;
@@ -408,16 +506,27 @@ export default function App() {
         }
 
         @media (max-width: 600px) {
-          .hero-inner { padding: 3.5rem 1.25rem 2.5rem; }
+          .hero-inner  { padding: 3.5rem 1.25rem 2.5rem; }
           .section-inner { padding: 2.5rem 1.25rem; }
           .nav { padding: 0 1.25rem; }
+          .toggle-label { display: none; }
         }
       `}</style>
 
       {/* NAV */}
       <nav className="nav">
         <div className="nav-logo">FORM<span className="lime">.</span></div>
-        <button className="nav-cta">Start Training</button>
+        <div className="nav-right">
+          {/* Dark / Light toggle */}
+          <button className="theme-toggle" onClick={() => setIsDark(!isDark)} aria-label="Toggle theme">
+            <span style={{ fontSize: "0.9rem" }}>{isDark ? "🌙" : "☀️"}</span>
+            <div className={`toggle-track${isDark ? "" : " on"}`}>
+              <div className="toggle-thumb" />
+            </div>
+            <span className="toggle-label">{isDark ? "Dark" : "Light"}</span>
+          </button>
+          <button className="nav-cta">Start Training</button>
+        </div>
       </nav>
 
       {/* HERO */}
@@ -430,7 +539,7 @@ export default function App() {
             Less time.<br />
             <span className="lime">More</span> output.
           </h1>
-          <p style={{ maxWidth: 500, marginTop: "2rem", fontSize: "1rem", color: "#9CA3AF", lineHeight: 1.7 }}>
+          <p style={{ maxWidth: 500, marginTop: "2rem", fontSize: "1rem", color: "var(--text-muted)", lineHeight: 1.7 }}>
             Science-backed routines built for people who treat their schedule like a resource.
             Every minute earns its place.
           </p>
@@ -446,7 +555,7 @@ export default function App() {
       </section>
 
       {/* DIVIDER */}
-      <div style={{ height: "1px", background: "#1E2028", maxWidth: 1100, margin: "0 auto" }} />
+      <div style={{ height: "1px", background: "var(--border-div)", maxWidth: 1100, margin: "0 auto" }} />
 
       {/* WORKOUTS */}
       <section>
@@ -482,12 +591,8 @@ export default function App() {
                 <h3 className="card-title">{w.title}</h3>
                 <p className="card-desc">{w.description}</p>
                 <div className="meta-row">
-                  <div className="meta-item">
-                    ⏱ <span>{w.duration} min</span>
-                  </div>
-                  <div className="meta-item">
-                    🔥 <span>{w.calories} kcal</span>
-                  </div>
+                  <div className="meta-item">⏱ <span>{w.duration} min</span></div>
+                  <div className="meta-item">🔥 <span>{w.calories} kcal</span></div>
                   <div className="meta-item">
                     <span className="level-dot" style={{ background: levelColors[w.level] }} />
                     <span>{w.level}</span>
@@ -504,7 +609,7 @@ export default function App() {
                         {e}
                       </div>
                     ))}
-                    <p style={{ fontSize: "0.75rem", color: "#6B7280", marginTop: "0.5rem" }}>
+                    <p style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: "0.5rem" }}>
                       Equipment: {w.equipment}
                     </p>
                   </div>
@@ -516,7 +621,7 @@ export default function App() {
       </section>
 
       {/* DIVIDER */}
-      <div style={{ height: "1px", background: "#1E2028", maxWidth: 1100, margin: "0 auto" }} />
+      <div style={{ height: "1px", background: "var(--border-div)", maxWidth: 1100, margin: "0 auto" }} />
 
       {/* TIPS */}
       <section>
